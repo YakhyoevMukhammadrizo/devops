@@ -1,0 +1,110 @@
+version: '3'
+
+services:
+  api_gateway:
+    image: ${DOCKER_REGISTRY}/${API_GATEWAY_IMAGE}:${api_gateway_tag:-latest}
+    restart: always
+    hostname: api_gateway
+    environment:
+      - ENVIRONMENT=${environment:-staging}
+      - FIREBASE_WEB_KEY=${FIREBASE_WEB_KEY}
+      - SIGNIN_KEY=${SIGNIN_KEY}
+      - ANDROID_PACKAGE_NAME=${ANDROID_PACKAGE_NAME}
+      - IOS_BUNDLE_ID=${IOS_BUNDLE_ID}
+      - DOMAIN_URI_PREFIX=${DOMAIN_URI_PREFIX}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - USER_SERVICE_HOST=user_service
+      - USER_SERVICE_PORT=9000
+      - NOTIFICATION_SERVICE_HOST=notification_service
+      - NOTIFICATION_SERVICE_PORT=9002
+      - AD_SERVICE_HOST=ad_service
+      - AD_SERVICE_PORT=9001
+      - SERVER_PORT=8000
+      - SERVER_HOST=localhost
+      - AWS_S3_ID=${aws_s3_id}
+      - AWS_S3_SECRET=${aws_s3_secret}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWTRefreshKey=${JWTRefreshKey}
+    ports:
+      - "8000:8000"
+    logging:
+      driver: ${LOGGING_DRIVER:-json-file}
+
+  user_service:
+    image: ${DOCKER_REGISTRY}/${USER_SERVICE_IMAGE}:${user_service_tag:-latest}
+    restart: always
+    hostname: user_service
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-staging}
+      - POSTGRES_HOST=${DB_HOST}
+      - POSTGRES_PORT=${DB_PORT}
+      - POSTGRES_DB=${USER_DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - RPC_PORT=:9000
+      - NOTIFICATION_SERVICE_HOST=notification_service
+      - NOTIFICATION_SERVICE_PORT=9002
+      - AD_SERVICE_HOST=ad_service
+      - AD_SERVICE_PORT=9001
+    ports:
+      - "9000:9000"
+    logging:
+      driver: ${LOGGING_DRIVER:-json-file}
+
+  ad_service:
+    image: ${DOCKER_REGISTRY}/${AD_SERVICE_IMAGE}:${ad_service_tag:-latest}
+    restart: always
+    hostname: ad_service
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-staging}
+      - POSTGRES_HOST=${DB_HOST}
+      - POSTGRES_PORT=${DB_PORT}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DB=${AD_DB_NAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - RPC_PORT=:9001
+      - NOTIFICATION_SERVICE_HOST=notification_service
+      - NOTIFICATION_SERVICE_PORT=9002
+      - USER_SERVICE_HOST=user_service
+      - USER_SERVICE_PORT=9000
+      - FIREBASE_WEB_KEY=${FIREBASE_WEB_KEY}
+      - IOS_BUNDLE_ID=${IOS_BUNDLE_ID}
+      - ANDROID_PACKAGE_NAME=${ANDROID_PACKAGE_NAME}
+      - DOMAIN_URI_PREFIX=${DOMAIN_URI_PREFIX}
+    ports:
+      - "9001:9001"
+    logging:
+      driver: ${LOGGING_DRIVER:-json-file}
+
+  notification_service:
+    image: ${DOCKER_REGISTRY}/${NOTIFICATION_SERVICE_IMAGE}:${notification_service_tag:-latest}
+    restart: always
+    hostname: notification_service
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-staging}
+      - POSTGRES_HOST=${DB_HOST}
+      - POSTGRES_PORT=${DB_PORT}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DB=${NOTIFICATION_DB_NAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - RPC_PORT=:9002
+      - AD_SERVICE_HOST=ad_service
+      - AD_SERVICE_PORT=9001
+      - USER_SERVICE_HOST=user_service
+      - USER_SERVICE_PORT=9000
+      - FIREBASE_WEB_KEY=${FIREBASE_WEB_KEY}
+      - IOS_BUNDLE_ID=${IOS_BUNDLE_ID}
+      - ANDROID_PACKAGE_NAME=${ANDROID_PACKAGE_NAME}
+      - DOMAIN_URI_PREFIX=${DOMAIN_URI_PREFIX}
+    ports:
+      - "9002:9002"
+    logging:
+      driver: ${LOGGING_DRIVER:-json-file}
+
+  redis:
+    image: redis:4.0.9
+    logging:
+      driver: ${LOGGING_DRIVER:-json-file}
+    ports:
+      - "6379:6379"

@@ -1,0 +1,14 @@
+.idea
+workspace.xml
+dump_*
+.env
+
+
+# monitoring confing files
+monitoring/config/alertmanager.yml
+monitoring/config/prometheus.yml
+monitoring/exporters/nginx/nginx_exporter_conf.hcl
+
+# logging
+fluent-bit.conf
+spa_config/
