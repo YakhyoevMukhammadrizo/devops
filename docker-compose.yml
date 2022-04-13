@@ -24,6 +24,7 @@ services:
       - SERVER_HOST=localhost
       - AWS_S3_ID=${aws_s3_id}
       - AWS_S3_SECRET=${aws_s3_secret}
+      - BUCKET_NAME=${BUCKET_NAME}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWTRefreshKey=${JWTRefreshKey}
     ports:
