@@ -109,3 +109,11 @@ services:
       driver: ${LOGGING_DRIVER:-json-file}
     ports:
       - "6379:6379"
+
+  client:
+    image: ${DOCKER_REGISTRY}/${CLIENT_SERVICE_IMAGE}:${client_service_tag:-latest}
+    restart: always
+    ports:
+      - "3000:80"
+    logging:
+      driver: ${LOGGING_DRIVER:-json-file}
